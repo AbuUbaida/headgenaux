@@ -139,6 +139,7 @@ optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
 
 device = xm.xla_device()
 model.to(device)
+print('Device: ', device)
 
 for epoch in range(40):  # loop over the dataset multiple times
     print(f"Epoch:", epoch)
