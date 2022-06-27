@@ -16,7 +16,7 @@ tokenizer = AutoTokenizer.from_pretrained("csebuetnlp/banglabert")
 train_data = load_dataset('csv', data_files='data/palokal_merged_with_cap_v1.0.csv', split='train')
 # val_data = load_dataset('csv', data_files='data/valid_data_captioned.csv', split='train')
 
-batch_size = 32
+batch_size = 8
 encoder_max_length = 512
 decoder_max_length = 128
 
@@ -40,7 +40,7 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-# train_data = train_data.select(range(32))
+train_data = train_data.select(range(1000))
 
 train_data = train_data.map(
     process_data_to_model_inputs, 
