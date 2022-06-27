@@ -4,7 +4,6 @@ import evaluate
 import pandas as pd
 import numpy as np
 import torch
-import torch_xla.core.xla_model as xm
 from transformers import AutoTokenizer, EncoderDecoderModel
 from normalizer import normalize
 from datasets import load_dataset, DatasetDict
@@ -20,7 +19,7 @@ val_data = load_dataset('csv', data_files='Data/valid_data_captioned.csv', split
 
 tokenizer = AutoTokenizer.from_pretrained("csebuetnlp/banglabert")
 
-batch_size = 16
+batch_size = 4
 encoder_max_length = 512
 decoder_max_length = 128
 
@@ -44,7 +43,7 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-train_data = train_data.select(range(64))
+train_data = train_data.select(range(32))
 val_data = val_data.select(range(8))
 
 train_data = train_data.map(
@@ -133,7 +132,7 @@ def save_checkpoint(save_path, model, valid_loss):
     state_dict = {'model_state_dict': model.state_dict(),
                   'valid_loss': valid_loss}
     
-    xm.save(state_dict, save_path)
+    model.save(state_dict, save_path)
     print(f'Model saved to ==> {save_path}')
 
 def load_checkpoint(load_path, model):
@@ -203,7 +202,7 @@ def save_metrics(save_path,
                 'meteor_score_list':meteor_score_list
                 }
     
-    xm.save(state_dict, save_path)
+    model.save(state_dict, save_path)
     print(f'Model saved to ==> {save_path}')
 
 def load_metrics(load_path):
@@ -299,10 +298,6 @@ def compute_metrics(pred_ids, label_ids):
     pred_str = tokenizer.batch_decode(pred_ids, skip_special_tokens=True)
     label_ids[label_ids==-100] = tokenizer.pad_token_id
     label_str = tokenizer.batch_decode(label_ids, skip_special_tokens=True)
-
-    # print(f"***pred_str: {pred_str},\n\tlabel_str: {label_str}\n")
-    with open('base-model/evaluation_results_48_PA.txt', 'a') as f:
-        f.write(f"***pred_str: {pred_str},\n\n\tlabel_str: {label_str}\n\n\n\n\n")
 
     rouge_output = rouge_score(pred_str, label_str)
     try:
@@ -429,7 +424,7 @@ def train(model,
             outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
             loss = outputs.loss
             loss.backward()
-            xm.optimizer_step(optimizer, barrier=True)
+            optimizer.step()
 
             # update running values
             running_loss += loss.item()
@@ -644,7 +639,8 @@ def train(model,
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
 
-device = xm.xla_device()
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = "cpu"
 model.to(device)
 
 train(model=model, optimizer=optimizer, num_epochs=30)
