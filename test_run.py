@@ -40,7 +40,7 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-train_data = train_data.select(range(32))
+# train_data = train_data.select(range(32))
 
 train_data = train_data.map(
     process_data_to_model_inputs, 
