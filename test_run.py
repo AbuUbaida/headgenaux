@@ -137,6 +137,7 @@ def compute_metrics(pred_ids, label_ids):
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
 
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = xm.xla_device()
 model.to(device)
 print('Device: ', device)
@@ -145,15 +146,6 @@ for epoch in range(40):  # loop over the dataset multiple times
     print(f"Epoch:", epoch)
     # train + evaluate on training data
     running_loss = 0.0
-    # train_rouge_1_precision = 0.0
-    # train_rouge_1_recall = 0.0
-    # train_rouge_1_f1 = 0.0
-    # train_rouge_2_precision = 0.0
-    # train_rouge_2_recall = 0.0
-    # train_rouge_2_f1 = 0.0
-    # train_rouge_L_precision = 0.0
-    # train_rouge_L_recall = 0.0
-    # train_rouge_L_f1 = 0.0
 
     for batch in train_dataloader:
         model.train()
@@ -168,34 +160,9 @@ for epoch in range(40):  # loop over the dataset multiple times
         # forward + backward + optimize
         outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
-        running_loss += loss.item()
+        # running_loss += loss.item()
         loss.backward()
+        # optimizer.step()
         xm.optimizer_step(optimizer, barrier=True)
 
         print("Running Loss:", loss.item())
-
-        # evaluate (batch generation)
-        # model.eval()
-        # outputs = model.generate(batch["input_ids"].to(device))
-        # compute metrics
-        # metrics = compute_metrics(pred_ids=outputs, label_ids=batch["labels"])
-        # train_rouge_1_precision += metrics["rouge1_precision"] 
-        # train_rouge_1_recall += metrics["rouge1_recall"] 
-        # train_rouge_1_f1 += metrics["rouge1_fmeasure"]
-        # train_rouge_2_precision += metrics["rouge2_precision"] 
-        # train_rouge_2_recall += metrics["rouge2_recall"]  
-        # train_rouge_2_f1 += metrics["rouge2_fmeasure"] 
-        # train_rouge_L_precision += metrics["rougeL_precision"] 
-        # train_rouge_L_recall += metrics["rougeL_recall"] 
-        # train_rouge_L_f1 += metrics["rougeL_fmeasure"]
-  
-    # print("Loss: ", running_loss / len(train_dataloader))
-    # print("Train ROUGE 1 precision:", train_rouge_1_precision / len(train_dataloader))
-    # print("Train ROUGE 1 recall:", train_rouge_1_recall / len(train_dataloader))
-    # print("Train ROUGE 1 F1:", train_rouge_1_f1 / len(train_dataloader))
-    # print("Train ROUGE 2 precision:", train_rouge_2_precision / len(train_dataloader))
-    # print("Train ROUGE 2 recall:", train_rouge_2_recall / len(train_dataloader))
-    # print("Train ROUGE 2 F1:", train_rouge_2_f1 / len(train_dataloader))
-    # print("Train ROUGE L precision:", train_rouge_L_precision / len(train_dataloader))
-    # print("Train ROUGE L recall:", train_rouge_L_recall / len(train_dataloader))
-    # print("Train ROUGE L F1:", train_rouge_L_f1 / len(train_dataloader))
