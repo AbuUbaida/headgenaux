@@ -16,19 +16,19 @@ tokenizer = AutoTokenizer.from_pretrained("csebuetnlp/banglabert")
 train_data = load_dataset('csv', data_files='data/palokal_merged_with_cap_v1.0.csv', split='train')
 # val_data = load_dataset('csv', data_files='data/valid_data_captioned.csv', split='train')
 
-batch_size = 8
+batch_size = 32
 encoder_max_length = 512
 decoder_max_length = 128
 
 def process_data_to_model_inputs(batch):
-    for idx, example in enumerate(batch['headline']):
-        batch['headline'][idx] = normalize(example)
+    for idx, example in enumerate(batch['head_lines']):
+        batch['head_lines'][idx] = normalize(example)
     for idx, example in enumerate(batch['article']):
         batch['article'][idx] = normalize(example)
         
     # tokenize the inputs and labels 
     inputs = tokenizer(batch["article"], padding="max_length", truncation=True, max_length=encoder_max_length)
-    outputs = tokenizer(batch["headline"], padding="max_length", truncation=True, max_length=decoder_max_length)
+    outputs = tokenizer(batch["head_lines"], padding="max_length", truncation=True, max_length=decoder_max_length)
 
     batch["input_ids"] = inputs.input_ids
     batch["attention_mask"] = inputs.attention_mask
@@ -40,16 +40,16 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-train_data = train_data.select(range(1000))
+# train_data = train_data.select(range(1000))
 
 train_data = train_data.map(
     process_data_to_model_inputs, 
     batched=True, 
     batch_size=batch_size, 
-    remove_columns=["article", "headline", "ic1"]
+    remove_columns=["article", "head_lines", "news_link", "category"]
 )
 train_data.set_format(
-    type="torch", columns=["input_ids", "attention_mask", "labels"],
+    type="torch", columns=["input_ids", "attention_mask", "labels"]
 )
 
 # val_data = val_data.select(range(8))
