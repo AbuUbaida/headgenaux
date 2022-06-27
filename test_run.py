@@ -169,32 +169,33 @@ for epoch in range(40):  # loop over the dataset multiple times
         outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
         running_loss += loss.item()
-        print("Running Loss:", loss.item())
         loss.backward()
         xm.optimizer_step(optimizer, barrier=True)
 
+        print("Running Loss:", loss.item())
+
         # evaluate (batch generation)
-        model.eval()
-        outputs = model.generate(batch["input_ids"].to(device))
+        # model.eval()
+        # outputs = model.generate(batch["input_ids"].to(device))
         # compute metrics
-        metrics = compute_metrics(pred_ids=outputs, label_ids=batch["labels"])
-        train_rouge_1_precision += metrics["rouge1_precision"] 
-        train_rouge_1_recall += metrics["rouge1_recall"] 
-        train_rouge_1_f1 += metrics["rouge1_fmeasure"]
-        train_rouge_2_precision += metrics["rouge2_precision"] 
-        train_rouge_2_recall += metrics["rouge2_recall"]  
-        train_rouge_2_f1 += metrics["rouge2_fmeasure"] 
-        train_rouge_L_precision += metrics["rougeL_precision"] 
-        train_rouge_L_recall += metrics["rougeL_recall"] 
-        train_rouge_L_f1 += metrics["rougeL_fmeasure"]
+        # metrics = compute_metrics(pred_ids=outputs, label_ids=batch["labels"])
+        # train_rouge_1_precision += metrics["rouge1_precision"] 
+        # train_rouge_1_recall += metrics["rouge1_recall"] 
+        # train_rouge_1_f1 += metrics["rouge1_fmeasure"]
+        # train_rouge_2_precision += metrics["rouge2_precision"] 
+        # train_rouge_2_recall += metrics["rouge2_recall"]  
+        # train_rouge_2_f1 += metrics["rouge2_fmeasure"] 
+        # train_rouge_L_precision += metrics["rougeL_precision"] 
+        # train_rouge_L_recall += metrics["rougeL_recall"] 
+        # train_rouge_L_f1 += metrics["rougeL_fmeasure"]
   
-    print("Loss: ", running_loss / len(train_dataloader))
-    print("Train ROUGE 1 precision:", train_rouge_1_precision / len(train_dataloader))
-    print("Train ROUGE 1 recall:", train_rouge_1_recall / len(train_dataloader))
-    print("Train ROUGE 1 F1:", train_rouge_1_f1 / len(train_dataloader))
-    print("Train ROUGE 2 precision:", train_rouge_2_precision / len(train_dataloader))
-    print("Train ROUGE 2 recall:", train_rouge_2_recall / len(train_dataloader))
-    print("Train ROUGE 2 F1:", train_rouge_2_f1 / len(train_dataloader))
-    print("Train ROUGE L precision:", train_rouge_L_precision / len(train_dataloader))
-    print("Train ROUGE L recall:", train_rouge_L_recall / len(train_dataloader))
-    print("Train ROUGE L F1:", train_rouge_L_f1 / len(train_dataloader))
+    # print("Loss: ", running_loss / len(train_dataloader))
+    # print("Train ROUGE 1 precision:", train_rouge_1_precision / len(train_dataloader))
+    # print("Train ROUGE 1 recall:", train_rouge_1_recall / len(train_dataloader))
+    # print("Train ROUGE 1 F1:", train_rouge_1_f1 / len(train_dataloader))
+    # print("Train ROUGE 2 precision:", train_rouge_2_precision / len(train_dataloader))
+    # print("Train ROUGE 2 recall:", train_rouge_2_recall / len(train_dataloader))
+    # print("Train ROUGE 2 F1:", train_rouge_2_f1 / len(train_dataloader))
+    # print("Train ROUGE L precision:", train_rouge_L_precision / len(train_dataloader))
+    # print("Train ROUGE L recall:", train_rouge_L_recall / len(train_dataloader))
+    # print("Train ROUGE L F1:", train_rouge_L_f1 / len(train_dataloader))
