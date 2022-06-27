@@ -145,17 +145,17 @@ for epoch in range(40):  # loop over the dataset multiple times
     print(f"Epoch:", epoch)
     # train + evaluate on training data
     running_loss = 0.0
-    train_rouge_1_precision = 0.0
-    train_rouge_1_recall = 0.0
-    train_rouge_1_f1 = 0.0
-    train_rouge_2_precision = 0.0
-    train_rouge_2_recall = 0.0
-    train_rouge_2_f1 = 0.0
-    train_rouge_L_precision = 0.0
-    train_rouge_L_recall = 0.0
-    train_rouge_L_f1 = 0.0
+    # train_rouge_1_precision = 0.0
+    # train_rouge_1_recall = 0.0
+    # train_rouge_1_f1 = 0.0
+    # train_rouge_2_precision = 0.0
+    # train_rouge_2_recall = 0.0
+    # train_rouge_2_f1 = 0.0
+    # train_rouge_L_precision = 0.0
+    # train_rouge_L_recall = 0.0
+    # train_rouge_L_f1 = 0.0
 
-    for batch in tqdm(train_dataloader):
+    for batch in train_dataloader:
         model.train()
         # get the inputs; 
         input_ids = batch["input_ids"].to(device)
