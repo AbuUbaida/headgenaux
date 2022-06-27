@@ -64,7 +64,7 @@ train_data.set_format(
 #     type="torch", columns=["input_ids", "attention_mask", "labels"],
 # )
 
-train_dataloader = DataLoader(train_data, shuffle=True, batch_size=4)
+train_dataloader = DataLoader(train_data, shuffle=True, batch_size=32)
 # val_dataloader = DataLoader(val_data, batch_size=4)
 
 model = EncoderDecoderModel.from_encoder_decoder_pretrained("csebuetnlp/banglabert", "csebuetnlp/banglabert")
@@ -78,62 +78,6 @@ model.config.no_repeat_ngram_size = 2
 model.config.early_stopping = True
 model.config.length_penalty = 1
 model.config.num_beams = 4
-
-def rouge_compute(predictions, references, rouge_types=None, use_aggregator=True, use_stemmer=True):
-    if rouge_types is None:
-        rouge_types = ["rouge1", "rouge2", "rougeL", "rougeLsum"]
-
-    scorer = rouge_scorer.RougeScorer(rouge_types=rouge_types, use_stemmer=use_stemmer, lang="bengali")
-    if use_aggregator:
-        aggregator = scoring.BootstrapAggregator()
-    else:
-        scores = []
-
-    for ref, pred in zip(references, predictions):
-        score = scorer.score(ref, pred)
-        if use_aggregator:
-            aggregator.add_scores(score)
-        else:
-            scores.append(score)
-
-    if use_aggregator:
-        result = aggregator.aggregate()
-    else:
-        result = {}
-        for key in scores[0]:
-            result[key] = list(score[key] for score in scores)
-
-    return result
-
-def rouge_score(pred_str, label_str):
-    rouge_score = rouge_compute(predictions=pred_str, references=label_str, rouge_types=["rouge1", "rouge2", "rougeL"])
-    rouge1 = rouge_score['rouge1'].mid
-    rouge2 = rouge_score['rouge2'].mid
-    rougeL = rouge_score['rougeL'].mid
-    return {
-        "rouge1": rouge1,
-        "rouge2": rouge2,
-        "rougeL": rougeL
-    }
-
-def compute_metrics(pred_ids, label_ids):
-    pred_str = tokenizer.batch_decode(pred_ids, skip_special_tokens=True)
-    label_ids[label_ids==-100] = tokenizer.pad_token_id
-    label_str = tokenizer.batch_decode(label_ids, skip_special_tokens=True)
-
-    rouge_output = rouge_score(pred_str, label_str)
-
-    return {
-        "rouge1_precision": round(rouge_output["rouge1"].precision, 4),
-        "rouge1_recall": round(rouge_output["rouge1"].recall, 4),
-        "rouge1_fmeasure": round(rouge_output["rouge1"].fmeasure, 4),
-        "rouge2_precision": round(rouge_output["rouge2"].precision, 4),
-        "rouge2_recall": round(rouge_output["rouge2"].recall, 4),
-        "rouge2_fmeasure": round(rouge_output["rouge2"].fmeasure, 4),
-        "rougeL_precision": round(rouge_output["rougeL"].precision, 4),
-        "rougeL_recall": round(rouge_output["rougeL"].recall, 4),
-        "rougeL_fmeasure": round(rouge_output["rougeL"].fmeasure, 4)
-    }
 
 optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
 
