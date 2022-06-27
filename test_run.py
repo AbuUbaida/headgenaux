@@ -16,7 +16,7 @@ tokenizer = AutoTokenizer.from_pretrained("csebuetnlp/banglabert")
 train_data = load_dataset('csv', data_files='data/palokal_merged_with_cap_v1.0.csv', split='train')
 # val_data = load_dataset('csv', data_files='data/valid_data_captioned.csv', split='train')
 
-batch_size = 32
+batch_size = 16
 encoder_max_length = 512
 decoder_max_length = 128
 
@@ -64,7 +64,7 @@ train_data.set_format(
 #     type="torch", columns=["input_ids", "attention_mask", "labels"],
 # )
 
-train_dataloader = DataLoader(train_data, shuffle=True, batch_size=32)
+train_dataloader = DataLoader(train_data, shuffle=True, batch_size=16)
 # val_dataloader = DataLoader(val_data, batch_size=4)
 
 model = EncoderDecoderModel.from_encoder_decoder_pretrained("csebuetnlp/banglabert", "csebuetnlp/banglabert")
