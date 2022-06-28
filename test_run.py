@@ -41,7 +41,7 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-train_data = train_data.select(range(100000))
+train_data = train_data.select(range(64))
 
 train_data = train_data.map(
     process_data_to_model_inputs, 
@@ -108,7 +108,10 @@ for epoch in range(40):  # loop over the dataset multiple times
         # running_loss += loss.item()
         loss.backward()
         # optimizer.step()
-        xm.optimizer_step(optimizer, barrier=True)
+        # xm.optimizer_step(optimizer, barrier=True)
+        xm.reduce_gradients(optimizer)
+        # Parameter Update
+        optimizer.step()
 
         print("Running Loss:", loss.item())
     end = time.time()
