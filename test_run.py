@@ -4,6 +4,7 @@ import evaluate
 import pandas as pd
 import numpy as np
 import torch
+import time
 import torch_xla.core.xla_model as xm
 from tqdm.notebook import tqdm
 from transformers import BertTokenizerFast, AutoTokenizer, Seq2SeqTrainingArguments, Seq2SeqTrainer, EncoderDecoderModel
@@ -90,7 +91,7 @@ for epoch in range(40):  # loop over the dataset multiple times
     print(f"Epoch:", epoch)
     # train + evaluate on training data
     running_loss = 0.0
-
+    start = time.time()
     for batch in train_dataloader:
         model.train()
         # get the inputs; 
@@ -110,3 +111,5 @@ for epoch in range(40):  # loop over the dataset multiple times
         xm.optimizer_step(optimizer, barrier=True)
 
         print("Running Loss:", loss.item())
+    end = time.time()
+    print('Elapsed time per epoch: ', end-start)
