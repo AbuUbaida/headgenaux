@@ -19,6 +19,8 @@ warnings.filterwarnings('ignore')
 tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
 
 def process_data_to_model_inputs(batch):
+    encoder_max_length = 512
+    decoder_max_length = 128
     inputs = tokenizer(batch['review_body'], padding="max_length", truncation=True, max_length=encoder_max_length)
     outputs = tokenizer(batch['review_title'], padding="max_length", truncation=True, max_length=decoder_max_length)
 
@@ -31,6 +33,7 @@ def process_data_to_model_inputs(batch):
     return batch
 
 def run(index):
+    batch_size = 16
 
     dataset = load_dataset('amazon_reviews_multi', 'en', split='train')
     dataset = dataset.train_test_split(test_size=0.1)
@@ -40,10 +43,6 @@ def run(index):
         'valid': val_data['train'],
         'test': val_data['test'],})
     train_data = dataset['train']
-
-    batch_size = 16
-    encoder_max_length = 512
-    decoder_max_length = 128
 
     train_data = train_data.select(range(10000))
 
