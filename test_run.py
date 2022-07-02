@@ -19,7 +19,7 @@ train_data = load_dataset('csv', data_files='data/palokal_merged_with_cap_v1.0.c
 
 batch_size = 16
 encoder_max_length = 512
-decoder_max_length = 128
+decoder_max_length = 32
 
 def process_data_to_model_inputs(batch):
     for idx, example in enumerate(batch['head_lines']):
@@ -80,14 +80,14 @@ model.config.early_stopping = True
 model.config.length_penalty = 1
 model.config.num_beams = 4
 
-optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
-
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = xm.xla_device()
 model.to(device)
 print('Device: ', device)
 
-for epoch in range(40):  # loop over the dataset multiple times
+optimizer = torch.optim.AdamW(model.parameters(), lr=5e-5)
+
+for epoch in range(30):  # loop over the dataset multiple times
     print(f"Epoch:", epoch)
     # train + evaluate on training data
     running_loss = 0.0
@@ -108,10 +108,10 @@ for epoch in range(40):  # loop over the dataset multiple times
         # running_loss += loss.item()
         loss.backward()
         # optimizer.step()
-        # xm.optimizer_step(optimizer, barrier=True)
-        xm.reduce_gradients(optimizer)
-        # Parameter Update
-        optimizer.step()
+        xm.optimizer_step(optimizer, barrier=True)
+        # xm.reduce_gradients(optimizer)
+        # # Parameter Update
+        # optimizer.step()
 
         print("Running Loss:", loss.item())
     end = time.time()
