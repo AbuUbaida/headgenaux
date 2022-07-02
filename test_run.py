@@ -16,6 +16,8 @@ from torch.utils.data import DataLoader
 from scipy import stats
 warnings.filterwarnings('ignore')
 
+tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
+
 def process_data_to_model_inputs(batch):
     inputs = tokenizer(batch['review_body'], padding="max_length", truncation=True, max_length=encoder_max_length)
     outputs = tokenizer(batch['review_title'], padding="max_length", truncation=True, max_length=decoder_max_length)
@@ -29,7 +31,6 @@ def process_data_to_model_inputs(batch):
     return batch
 
 def run(index):
-    tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
 
     dataset = load_dataset('amazon_reviews_multi', 'en', split='train')
     dataset = dataset.train_test_split(test_size=0.1)
