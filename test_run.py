@@ -28,7 +28,7 @@ dataset = DatasetDict({
     'test': val_data['test'],})
 train_data = dataset['train']
 
-batch_size = 4
+batch_size = 16
 encoder_max_length = 512
 decoder_max_length = 128
 
@@ -44,7 +44,7 @@ def process_data_to_model_inputs(batch):
 
     return batch
 
-train_data = train_data.select(range(32))
+train_data = train_data.select(range(10000))
 
 train_data = train_data.map(
     process_data_to_model_inputs, 
@@ -99,7 +99,7 @@ for epoch in range(30):
 
         outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         loss = outputs.loss
-        print("Loss:", loss.item())
+        xm.master_print("Loss:", loss.item())
         loss.backward()
         # optimizer.step()
         xm.optimizer_step(optimizer)
